@@ -10,7 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const baseUrl = "http://localhost:8000";
+  const baseUrl = "https://shammer-ride-backend.onrender.com";
+
 
   const links = document.querySelectorAll(".sidebar-link");
   const panels = {

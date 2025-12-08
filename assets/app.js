@@ -55,7 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("auth-password").value.trim();
     if (!email || !password) return;
 
-    const baseUrl = "http://localhost:8000";
+    const baseUrl = "https://shammer-ride-backend.onrender.com";
+
 
     try {
       if (!isLogin) {

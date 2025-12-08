@@ -1,18 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
   const userRaw = localStorage.getItem("swift_user");
   if (!userRaw) return;
+
   const user = JSON.parse(userRaw);
   if (user.role !== "driver") return;
 
-  const wsUrl = (location.protocol === "https:" ? "wss://" : "ws://") + location.hostname + ":8000";
-  const ws = new WebSocket(wsUrl + `/ws/driver/${encodeURIComponent(user.email)}`);
+  // 🔥 Updated WebSocket backend URL for Render deployment
+  const wsUrl = "wss://shammer-ride-backend.onrender.com";
+
+  const ws = new WebSocket(
+    `${wsUrl}/ws/driver/${encodeURIComponent(user.email)}`
+  );
 
   ws.onopen = () => {
     console.log("Driver WebSocket connected");
 
+    // Fake GPS updates every 5 seconds (demo mode)
     setInterval(() => {
       const fakeLat = 5.6 + Math.random() * 0.01;
       const fakeLng = -0.18 + Math.random() * 0.01;
+
       ws.send(
         JSON.stringify({
           lat: fakeLat,
@@ -26,11 +33,21 @@ document.addEventListener("DOMContentLoaded", () => {
   ws.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
+
+      // Incoming ride request
       if (data.event === "new_request" && window.SwiftRideDriver) {
         window.SwiftRideDriver.addIncomingRequest(data.ride);
       }
     } catch (e) {
       console.error(e);
     }
+  };
+
+  ws.onerror = (err) => {
+    console.error("Driver WebSocket error:", err);
+  };
+
+  ws.onclose = () => {
+    console.warn("Driver WebSocket closed");
   };
 });

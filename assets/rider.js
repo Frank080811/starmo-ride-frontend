@@ -50,7 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const RATE_PER_KM = 0.6;
   const RATE_PER_MIN = 0.15;
 
-  const baseUrl = "http://localhost:8000";
+  const baseUrl = "https://shammer-ride-backend.onrender.com";
+
 
   function fakeDistanceAndDuration() {
     const distance = (Math.random() * 8 + 1).toFixed(1);
