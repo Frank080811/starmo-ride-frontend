@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SwiftRide – Driver Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script defer src="assets/driver.js"></script>
+  <script defer src="assets/driver_ws.js"></script>
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-circle small">SR</div>
+        <span class="logo-text">SwiftRide</span>
+      </div>
+      <div class="user-card">
+        <div class="avatar driver">D</div>
+        <div>
+          <div class="user-name" id="driver-name">Driver</div>
+          <div class="user-meta">Earnings today: <span id="driver-earnings">$0.00</span></div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link active" data-view="requests">Requests</button>
+        <button class="sidebar-link" data-view="trips">My Trips</button>
+        <button class="sidebar-link" data-view="stats">Stats</button>
+        <button class="sidebar-link" data-view="docs">Documents</button>
+      </nav>
+      <button class="btn ghost full-width" id="btn-logout">Log out</button>
+    </aside>
+
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <h1>Driver Dashboard</h1>
+        <div class="header-right">
+          <span class="status-pill toggleable online" id="driver-status">Online</span>
+        </div>
+      </header>
+
+      <section class="dashboard-content">
+        <div class="map-panel">
+          <div id="driver-map" class="map-placeholder">
+            <span class="map-hint">Driver map placeholder – integrate Mapbox/Leaflet here.</span>
+          </div>
+        </div>
+
+        <div class="side-panel" id="panel-requests">
+          <h2>Incoming requests</h2>
+          <ul class="ride-list" id="request-list"></ul>
+        </div>
+
+        <div class="side-panel hidden" id="panel-trips">
+          <h2>Today’s trips</h2>
+          <ul class="ride-list" id="driver-trips-list"></ul>
+        </div>
+
+        <div class="side-panel hidden" id="panel-stats">
+          <h2>Performance</h2>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <span class="stat-label">Trips</span>
+              <span class="stat-value" id="stat-trips">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Acceptance</span>
+              <span class="stat-value" id="stat-acceptance">0%</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Rating</span>
+              <span class="stat-value" id="stat-rating">5.0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-panel hidden" id="panel-docs">
+          <h2>Documents & Verification</h2>
+          <p>Upload your driver license, car papers, and ID.</p>
+          <input type="file" id="driver-doc" />
+          <button class="btn primary full-width" id="btn-upload-doc">Upload document</button>
+          <p id="upload-status" class="muted small-text"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

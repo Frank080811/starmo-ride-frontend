@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SwiftRide – Rider Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script defer src="assets/rider.js"></script>
+  <script defer src="assets/rider_ws.js"></script>
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-circle small">SR</div>
+        <span class="logo-text">SwiftRide</span>
+      </div>
+      <div class="user-card">
+        <div class="avatar">R</div>
+        <div>
+          <div class="user-name" id="rider-name">Rider</div>
+          <div class="user-meta">Rating: <span id="rider-rating">4.8 ★</span></div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link active" data-view="book">Book Ride</button>
+        <button class="sidebar-link" data-view="history">Ride History</button>
+        <button class="sidebar-link" data-view="payments">Wallet & Payments</button>
+      </nav>
+      <button class="btn ghost full-width" id="btn-logout">Log out</button>
+    </aside>
+
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <h1>Rider Dashboard</h1>
+        <div class="header-right">
+          <span id="city-label">Your city</span>
+          <span class="status-pill online">Connected</span>
+        </div>
+      </header>
+
+      <section class="dashboard-content">
+        <div class="map-panel">
+          <div id="map-placeholder" class="map-placeholder">
+            <span class="map-hint">Map loading… (placeholder)</span>
+          </div>
+        </div>
+
+        <div class="side-panel" id="panel-book">
+          <h2>Request a new ride</h2>
+          <form id="ride-form">
+            <label>Pickup</label>
+            <input type="text" id="pickup" placeholder="Enter pickup location" required />
+            <label>Dropoff</label>
+            <input type="text" id="dropoff" placeholder="Enter destination" required />
+
+            <div class="inline-inputs">
+              <div>
+                <label>Ride Type</label>
+                <select id="ride-type">
+                  <option value="standard">Standard</option>
+                  <option value="comfort">Comfort</option>
+                  <option value="xl">XL</option>
+                </select>
+              </div>
+              <div>
+                <label>Payment</label>
+                <select id="payment-method">
+                  <option value="cash">Cash</option>
+                  <option value="card">Card</option>
+                  <option value="wallet">Wallet</option>
+                </select>
+              </div>
+            </div>
+
+            <label>Promo Code (optional)</label>
+            <input type="text" id="promo-code" placeholder="e.g. WELCOME10" />
+
+            <button type="submit" class="btn primary full-width">Find a driver</button>
+          </form>
+
+          <div class="estimate-card hidden" id="estimate-card">
+            <h3>Estimated fare</h3>
+            <p>
+              Distance: <span id="est-distance">–</span><br />
+              Duration: <span id="est-duration">–</span><br />
+              Surge: <span id="est-surge">1.0x</span><br />
+              Fare: <strong id="est-fare">–</strong>
+            </p>
+          </div>
+
+          <div class="current-ride hidden" id="current-ride">
+            <h3>Current ride</h3>
+            <p>Status: <span id="ride-status-label">Searching</span></p>
+            <p>Driver: <span id="ride-driver-name">–</span></p>
+          </div>
+        </div>
+
+        <div class="side-panel hidden" id="panel-history">
+          <h2>Recent rides</h2>
+          <ul class="ride-list" id="ride-history-list"></ul>
+        </div>
+
+        <div class="side-panel hidden" id="panel-payments">
+          <h2>Wallet & Payments</h2>
+          <p>Wallet balance: <strong id="wallet-balance">$0.00</strong></p>
+          <button class="btn ghost full-width" id="btn-add-funds">Add demo funds</button>
+          <p class="muted small-text">In production, integrate a payment gateway (Stripe, Flutterwave, Paystack, etc.).</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

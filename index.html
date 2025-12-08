@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SwiftRide – Smart Ride Hailing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <div class="page-gradient"></div>
+
+  <header class="navbar">
+    <div class="navbar-left">
+      <div class="logo-circle">SR</div>
+      <span class="logo-text">SwiftRide</span>
+    </div>
+    <nav class="navbar-center">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it Works</a>
+      <a href="#pricing">Pricing</a>
+    </nav>
+    <div class="navbar-right">
+      <button class="btn ghost" id="btn-login-open">Log in</button>
+      <button class="btn primary" id="btn-signup-open">Sign up</button>
+      <button class="btn ghost mobile-menu-toggle" id="btn-mobile-menu">☰</button>
+    </div>
+  </header>
+
+  <nav class="mobile-nav hidden" id="mobile-nav">
+    <a href="#features">Features</a>
+    <a href="#how-it-works">How it Works</a>
+    <a href="#pricing">Pricing</a>
+  </nav>
+
+  <main class="hero-section">
+    <section class="hero-left">
+      <h1>Book rides in seconds.<br />Drive with confidence.</h1>
+      <p class="hero-subtitle">
+        A modern ride-hailing platform for cities that never stand still.
+        Seamless booking, real-time tracking, and secure payments – all in one app.
+      </p>
+      <div class="hero-cta">
+        <button class="btn primary" id="btn-get-ride">Request a ride</button>
+        <button class="btn ghost" id="btn-become-driver">Become a driver</button>
+      </div>
+      <div class="hero-badges">
+        <div class="badge">
+          <span class="badge-title">Real-time tracking</span>
+          <span class="badge-subtitle">Live GPS & ETA updates</span>
+        </div>
+        <div class="badge">
+          <span class="badge-title">5-star safety</span>
+          <span class="badge-subtitle">Verified drivers & SOS</span>
+        </div>
+        <div class="badge">
+          <span class="badge-title">Smart surge engine</span>
+          <span class="badge-subtitle">Dynamic but transparent pricing</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero-right">
+      <div class="phone-mock">
+        <div class="phone-status"></div>
+        <div class="phone-map-placeholder">
+          <div class="map-dot dot-1"></div>
+          <div class="map-dot dot-2"></div>
+          <div class="map-dot dot-3"></div>
+          <div class="map-route"></div>
+        </div>
+        <div class="phone-card">
+          <div class="ride-row">
+            <span class="ride-title">Your ride is on the way</span>
+            <span class="ride-status">Arrives in 3 mins</span>
+          </div>
+          <div class="ride-row">
+            <span class="ride-driver">James • Toyota Corolla</span>
+            <span class="ride-rating">4.9 ★</span>
+          </div>
+          <div class="ride-row">
+            <span class="ride-meta">Distance: 3.2 km</span>
+            <span class="ride-meta">Fare: $6.70</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="section" id="features">
+    <h2>Why SwiftRide?</h2>
+    <div class="grid-3">
+      <div class="feature-card">
+        <h3>Smart Matching</h3>
+        <p>Match riders and drivers based on distance, rating, and demand in real time.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Dynamic Pricing</h3>
+        <p>Surge pricing with transparent rules, configurable per city and time.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Analytics Dashboard</h3>
+        <p>Admin insights into usage, revenue, and heatmaps for peak hours.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how-it-works">
+    <h2>How It Works</h2>
+    <div class="steps">
+      <div class="step">
+        <span class="step-number">1</span>
+        <h3>Sign up</h3>
+        <p>Riders and drivers create verified accounts with phone and ID checks.</p>
+      </div>
+      <div class="step">
+        <span class="step-number">2</span>
+        <h3>Request or Accept</h3>
+        <p>Riders request rides, drivers accept with estimated fare and distance.</p>
+      </div>
+      <div class="step">
+        <span class="step-number">3</span>
+        <h3>Track & Pay</h3>
+        <p>Track the ride live and pay securely with card, wallet, or cash.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <h2>Flexible Pricing</h2>
+    <div class="grid-3">
+      <div class="price-card">
+        <h3>Rider</h3>
+        <p class="price-label">Pay per ride</p>
+        <ul>
+          <li>Real-time ETA</li>
+          <li>Promo codes & discounts</li>
+          <li>24/7 support</li>
+        </ul>
+      </div>
+      <div class="price-card highlighted">
+        <h3>Driver</h3>
+        <p class="price-label">Low commission</p>
+        <ul>
+          <li>Daily earnings summary</li>
+          <li>In-app navigation</li>
+          <li>Bonus incentives</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <h3>Admin</h3>
+        <p class="price-label">Custom</p>
+        <ul>
+          <li>City management</li>
+          <li>Heatmaps & surge rules</li>
+          <li>BI integrations</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>© <span id="year"></span> SwiftRide Technologies.</span>
+    <span class="footer-links">
+      <a href="admin_dashboard.html">Admin</a> ·
+      <a href="#">Privacy</a> · <a href="#">Terms</a> · <a href="#">Support</a>
+    </span>
+  </footer>
+
+  <div class="modal-backdrop hidden" id="auth-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="auth-title">Log in</h3>
+        <button class="modal-close" id="btn-modal-close">✕</button>
+      </div>
+      <form id="auth-form">
+        <div class="tabs">
+          <button type="button" class="tab active" data-role="rider">Rider</button>
+          <button type="button" class="tab" data-role="driver">Driver</button>
+          <button type="button" class="tab" data-role="admin">Admin</button>
+        </div>
+        <input type="email" id="auth-email" placeholder="Email" required />
+        <input type="password" id="auth-password" placeholder="Password" required />
+        <button type="submit" class="btn primary full-width" id="auth-submit">Continue</button>
+        <p class="switch-text" id="auth-switch-text">
+          Don’t have an account?
+          <button type="button" class="link-button" id="btn-switch-signup">Sign up</button>
+        </p>
+        <p class="auth-hint">Demo: accounts are stored in backend, but you can start with any email.</p>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

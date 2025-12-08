@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SwiftRide – Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/styles.css" />
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script defer src="assets/admin.js"></script>
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-circle small">SR</div>
+        <span class="logo-text">SwiftRide Admin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link active" data-view="overview">Overview</button>
+        <button class="sidebar-link" data-view="heatmap">Heatmap</button>
+        <button class="sidebar-link" data-view="users">Users</button>
+      </nav>
+      <button class="btn ghost full-width" onclick="window.location.href='index.html'">Back to site</button>
+    </aside>
+
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <h1>Admin Dashboard</h1>
+      </header>
+
+      <section class="dashboard-content admin-layout">
+        <div class="side-panel" id="admin-overview">
+          <h2>Overview</h2>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <span class="stat-label">Total Rides (24h)</span>
+              <span class="stat-value" id="admin-rides">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Revenue (24h)</span>
+              <span class="stat-value" id="admin-revenue">$0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Active Drivers</span>
+              <span class="stat-value" id="admin-drivers">0</span>
+            </div>
+          </div>
+          <div id="admin-rides-chart" class="admin-chart"></div>
+        </div>
+
+        <div class="side-panel hidden" id="admin-heatmap">
+          <h2>City Heatmap & Surge</h2>
+          <p class="muted small-text">Heatmap of recent rides by zone; used by surge engine.</p>
+          <div id="heatmap" class="admin-chart"></div>
+          <p>Current surge multiplier: <strong id="current-surge">1.0x</strong></p>
+        </div>
+
+        <div class="side-panel hidden" id="admin-users">
+          <h2>Users (sample list)</h2>
+          <ul id="admin-user-list" class="ride-list"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
