@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const user = JSON.parse(userRaw);
+  const CURRENCY = "GH₵"; // 🇬🇭 Ghana Cedis
+
   const nameEl = document.getElementById("rider-name");
   if (nameEl) nameEl.textContent = user.email.split("@")[0];
 
@@ -46,12 +48,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const rideStatusLabel = document.getElementById("ride-status-label");
   const rideDriverName = document.getElementById("ride-driver-name");
 
-  const BASE_FARE = 2.0;
-  const RATE_PER_KM = 0.6;
-  const RATE_PER_MIN = 0.15;
+  // Ghana pricing model
+  const BASE_FARE = 20.0;        // GH₵ base
+  const RATE_PER_KM = 5.0;       // GH₵ / km
+  const RATE_PER_MIN = 0.50;     // GH₵ / minute
 
   const baseUrl = "https://sharmo-riding-app.onrender.com";
 
+  // --- GHANA GPS AUTOFILL ---
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const pickupInput = document.getElementById("pickup");
+        if (pickupInput) pickupInput.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      },
+      () => console.log("GPS permission denied")
+    );
+  }
 
   function fakeDistanceAndDuration() {
     const distance = (Math.random() * 8 + 1).toFixed(1);
@@ -74,8 +89,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let multiplier = 1;
     if (rideType === "comfort") multiplier = 1.2;
     if (rideType === "xl") multiplier = 1.6;
+
     let fare =
-      (BASE_FARE + distance * RATE_PER_KM + duration * RATE_PER_MIN) * multiplier * surgeMultiplier;
+      (BASE_FARE + distance * RATE_PER_KM + duration * RATE_PER_MIN) *
+      multiplier *
+      surgeMultiplier;
+
     if (promo && promo.toUpperCase() === "WELCOME10") {
       fare *= 0.9;
     }
@@ -89,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       if (!res.ok) return;
       const data = await res.json();
-      walletBalanceEl.textContent = "$" + data.balance.toFixed(2);
+      walletBalanceEl.textContent = CURRENCY + data.balance.toFixed(2);
     } catch (e) {
       console.error(e);
     }
@@ -102,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { Authorization: "Bearer " + user.token },
       });
       await refreshWallet();
-      alert("Demo: wallet topped up with $20");
+      alert("Demo: wallet topped up with GH₵20");
     } catch (e) {
       console.error(e);
     }
@@ -127,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
       estDistance.textContent = `${distance} km`;
       estDuration.textContent = `${duration} min`;
       estSurge.textContent = `${surgeMultiplier.toFixed(2)}x`;
-      estFare.textContent = `$${fare}`;
+      estFare.textContent = `${CURRENCY}${fare}`;
     }
 
     try {
@@ -145,14 +164,17 @@ document.addEventListener("DOMContentLoaded", () => {
           promo_code: promo || null,
         }),
       });
+
       if (!res.ok) {
         const err = await res.json();
         alert("Ride create failed: " + (err.detail || "Unknown error"));
         return;
       }
+
       const ride = await res.json();
       saveRideLocal(ride);
       renderHistory();
+
       if (currentRideEl) {
         currentRideEl.classList.remove("hidden");
         rideStatusLabel.textContent = ride.status;
@@ -185,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
       historyList.innerHTML = `<li class="ride-item"><span>No rides yet.</span></li>`;
       return;
     }
+
     history.forEach((ride) => {
       const li = document.createElement("li");
       li.className = "ride-item";
@@ -194,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="muted">${new Date(ride.created_at).toLocaleString()}</div>
         </div>
         <div style="text-align:right;">
-          <div>$${ride.fare.toFixed ? ride.fare.toFixed(2) : ride.fare}</div>
+          <div>${CURRENCY}${ride.fare.toFixed ? ride.fare.toFixed(2) : ride.fare}</div>
           <div class="muted">${ride.distance} km • ${ride.duration} min</div>
           <div class="muted">Status: ${ride.status}</div>
         </div>
