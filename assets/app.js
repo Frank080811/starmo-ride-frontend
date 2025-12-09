@@ -51,6 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 authForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const email = document.getElementById("auth-email").value.trim();
   const password = document.getElementById("auth-password").value.trim();
   if (!email || !password) return;
@@ -58,7 +59,7 @@ authForm?.addEventListener("submit", async (e) => {
   const baseUrl = "https://sharmo-riding-app.onrender.com";
 
   try {
-    // Signup
+    // SIGNUP FIRST IF IN SIGNUP MODE
     if (!isLogin) {
       await fetch(baseUrl + "/auth/signup", {
         method: "POST",
@@ -72,7 +73,7 @@ authForm?.addEventListener("submit", async (e) => {
       });
     }
 
-    // Login (token)
+    // LOGIN TO GET TOKEN
     const formData = new FormData();
     formData.append("username", email);
     formData.append("password", password);
@@ -88,23 +89,38 @@ authForm?.addEventListener("submit", async (e) => {
     }
 
     const tokenData = await tokenRes.json();
+    const accessToken = tokenData.access_token;
 
-    // ✔ FIX: use backend role + email
+    // 🔥 GET REAL USER ROLE FROM BACKEND
+    const meRes = await fetch(baseUrl + "/auth/me", {
+      headers: { Authorization: "Bearer " + accessToken }
+    });
+
+    if (!meRes.ok) {
+      alert("Unable to fetch user profile");
+      return;
+    }
+
+    const me = await meRes.json(); // { id, email, full_name, role }
+
+    // Save EXACT backend values
     const user = {
-      email: tokenData.email,
-      role: tokenData.role,
-      token: tokenData.access_token
+      email: me.email,
+      role: me.role,        // REAL ROLE from backend
+      token: accessToken
     };
 
     localStorage.setItem("swift_user", JSON.stringify(user));
 
-    // Redirect based on real backend role
-    if (user.role === "rider") {
+    // correct dashboard routing
+    if (me.role === "rider") {
       window.location.href = "rider_dashboard.html";
-    } else if (user.role === "driver") {
+    } else if (me.role === "driver") {
       window.location.href = "driver_dashboard.html";
-    } else {
+    } else if (me.role === "admin") {
       window.location.href = "admin_dashboard.html";
+    } else {
+      alert("Unknown user role");
     }
 
   } catch (err) {
@@ -112,6 +128,7 @@ authForm?.addEventListener("submit", async (e) => {
     alert("Connection error to backend");
   }
 });
+
 
 
   btnGetRide?.addEventListener("click", () => {
