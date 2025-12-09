@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (user.role !== "driver") return;
 
   // 🔥 Updated WebSocket backend URL for Render deployment
-  const wsUrl = "wss://shammer-ride-backend.onrender.com";
+  const wsUrl = "wss://sharmo-riding-app.onrender.com";
 
   const ws = new WebSocket(
     `${wsUrl}/ws/driver/${encodeURIComponent(user.email)}`

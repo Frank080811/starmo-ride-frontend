@@ -10,7 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const baseUrl = "https://shammer-ride-backend.onrender.com";
+  const baseUrl = "https://sharmo-riding-app.onrender.com";
+  
 
 
   const links = document.querySelectorAll(".sidebar-link");

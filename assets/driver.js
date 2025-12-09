@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let totalRequests = 0;
   let earnings = 0;
 
- const baseUrl = "https://shammer-ride-backend.onrender.com";
+ const baseUrl = "https://sharmo-riding-app.onrender.com";
 
 
   uploadBtn?.addEventListener("click", async () => {

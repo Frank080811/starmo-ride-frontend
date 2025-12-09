@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentRideEl = document.getElementById("current-ride");
 
   // 🔥 Updated WebSocket URL for Render deployment
-  const wsUrl = "wss://shammer-ride-backend.onrender.com";
+  const wsUrl = "wss://sharmo-riding-app.onrender.com";
 
   const ws = new WebSocket(
     `${wsUrl}/ws/rider/${encodeURIComponent(user.email)}`

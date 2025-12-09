@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("auth-password").value.trim();
     if (!email || !password) return;
 
-    const baseUrl = "https://shammer-ride-backend.onrender.com";
+    const baseUrl = "https://sharmo-riding-app.onrender.com";
 
 
     try {
