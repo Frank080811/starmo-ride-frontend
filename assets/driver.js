@@ -1,3 +1,4 @@
+// frontend/assets/js/driver.js
 document.addEventListener("DOMContentLoaded", () => {
   const userRaw = localStorage.getItem("swift_user");
   if (!userRaw) {
@@ -6,21 +7,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const user = JSON.parse(userRaw);
+  if (user.role !== "driver") {
+    window.location.href = "index.html";
+    return;
+  }
+
+  const CURRENCY = "GH₵";
+  const baseUrl = "https://sharmo-riding-app.onrender.com";
+
   const nameEl = document.getElementById("driver-name");
+  const ratingEl = document.getElementById("driver-rating");
+  const todayEarningsEl = document.getElementById("driver-earnings-today");
+  const todayTripsEl = document.getElementById("driver-trips-today");
+  const statusBadge = document.getElementById("driver-status");
+  const logoutBtn = document.getElementById("btn-logout");
+
+  const requestsList = document.getElementById("incoming-requests");
+  const tripsList = document.getElementById("driver-trip-history");
+
   if (nameEl) nameEl.textContent = user.email.split("@")[0];
 
-  const logoutBtn = document.getElementById("btn-logout");
   logoutBtn?.addEventListener("click", () => {
     localStorage.removeItem("swift_user");
     window.location.href = "index.html";
   });
 
+  // Sidebar navigation
   const links = document.querySelectorAll(".sidebar-link");
   const panels = {
+    dashboard: document.getElementById("panel-dashboard"),
     requests: document.getElementById("panel-requests"),
-    trips: document.getElementById("panel-trips"),
-    stats: document.getElementById("panel-stats"),
-    docs: document.getElementById("panel-docs"),
+    history: document.getElementById("panel-history"),
   };
 
   links.forEach((link) => {
@@ -34,126 +51,107 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  const statusPill = document.getElementById("driver-status");
-  let isOnline = true;
-
-  statusPill?.addEventListener("click", () => {
-    isOnline = !isOnline;
-    statusPill.textContent = isOnline ? "Online" : "Offline";
-    statusPill.classList.toggle("online", isOnline);
-  });
-
-  const requestList = document.getElementById("request-list");
-  const tripsList = document.getElementById("driver-trips-list");
-  const statTrips = document.getElementById("stat-trips");
-  const statAcceptance = document.getElementById("stat-acceptance");
-  const statRating = document.getElementById("stat-rating");
-  const driverEarnings = document.getElementById("driver-earnings");
-  const uploadInput = document.getElementById("driver-doc");
-  const uploadBtn = document.getElementById("btn-upload-doc");
-  const uploadStatus = document.getElementById("upload-status");
-
-  let totalTrips = 0;
-  let acceptedRequests = 0;
-  let totalRequests = 0;
-  let earnings = 0;
-
- const baseUrl = "https://sharmo-riding-app.onrender.com";
-
-
-  uploadBtn?.addEventListener("click", async () => {
-    if (!uploadInput.files.length) {
-      alert("Select a file first");
-      return;
-    }
-    const file = uploadInput.files[0];
-    const form = new FormData();
-    form.append("doc", file);
-
+  async function loadDriverOverview() {
     try {
-      const res = await fetch(baseUrl + `/drivers/upload-document`, {
-        method: "POST",
+      const res = await fetch(baseUrl + "/driver/overview", {
         headers: { Authorization: "Bearer " + user.token },
-        body: form,
       });
+      if (!res.ok) return;
       const data = await res.json();
-      uploadStatus.textContent = "Uploaded: " + (data.file || "");
-    } catch (e) {
-      console.error(e);
-      uploadStatus.textContent = "Upload failed";
+
+      if (ratingEl) ratingEl.textContent = (data.rating || 4.8).toFixed(1);
+      if (todayEarningsEl) todayEarningsEl.textContent = CURRENCY + (data.earnings_today || 0).toFixed(2);
+      if (todayTripsEl) todayTripsEl.textContent = data.trips_today || 0;
+    } catch (err) {
+      console.error(err);
     }
-  });
+  }
 
-  function addIncomingRequest(ride) {
-    totalRequests++;
+  async function loadTripHistory() {
+    try {
+      const res = await fetch(baseUrl + "/driver/rides", {
+        headers: { Authorization: "Bearer " + user.token },
+      });
+      if (!res.ok) return;
+      const rides = await res.json();
 
-    const li = document.createElement("li");
-    li.className = "ride-item";
-    li.innerHTML = `
-      <div>
-        <div>${ride.pickup} → ${ride.dropoff}</div>
-        <div class="muted">${ride.distance_km.toFixed(1)} km • $${ride.fare.toFixed(
-      2
-    )}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:0.2rem;">
-        <button class="btn primary" style="padding:0.2rem 0.5rem;font-size:0.7rem;">Accept</button>
-        <button class="btn ghost" style="padding:0.2rem 0.5rem;font-size:0.7rem;">Decline</button>
-      </div>
-    `;
-
-    const [acceptBtn, declineBtn] = li.querySelectorAll("button");
-
-    acceptBtn.addEventListener("click", async () => {
-      acceptedRequests++;
-      totalTrips++;
-      earnings += ride.fare;
-      driverEarnings.textContent = `$${earnings.toFixed(2)}`;
-      statTrips.textContent = totalTrips.toString();
-      statAcceptance.textContent = `${Math.round((acceptedRequests / totalRequests) * 100)}%`;
-
-      li.querySelectorAll("button").forEach((b) => (b.disabled = true));
-      li.style.opacity = "0.6";
-      moveToTrips(ride);
-
-      try {
-        await fetch(baseUrl + `/rides/${ride.id}/accept`, {
-          method: "POST",
-          headers: { Authorization: "Bearer " + user.token },
-        });
-      } catch (e) {
-        console.error(e);
+      tripsList.innerHTML = "";
+      if (!rides.length) {
+        tripsList.innerHTML = `<li class="ride-item"><span>No trips yet.</span></li>`;
+        return;
       }
-    });
 
-    declineBtn.addEventListener("click", () => {
-      statAcceptance.textContent =
-        totalRequests === 0 ? "0%" : `${Math.round((acceptedRequests / totalRequests) * 100)}%`;
-      li.remove();
-    });
-
-    requestList.prepend(li);
+      rides.forEach((ride) => {
+        const li = document.createElement("li");
+        li.className = "ride-item";
+        li.innerHTML = `
+          <div>
+            <div>${ride.pickup} → ${ride.dropoff}</div>
+            <div class="muted">${new Date(ride.created_at).toLocaleString()}</div>
+          </div>
+          <div style="text-align:right;">
+            <div>${CURRENCY}${(ride.fare || 0).toFixed(2)}</div>
+            <div class="muted">${ride.distance_km || 0} km • ${ride.duration_min || 0} min</div>
+            <div class="muted">Status: ${ride.status}</div>
+          </div>
+        `;
+        tripsList.appendChild(li);
+      });
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  function moveToTrips(ride) {
-    const trip = document.createElement("li");
-    trip.className = "ride-item";
-    trip.innerHTML = `
-      <div>
-        <div>${ride.pickup} → ${ride.dropoff}</div>
-        <div class="muted">Completed just now</div>
-      </div>
-      <div style="text-align:right;">
-        <div>$${ride.fare.toFixed(2)}</div>
-        <div class="muted">${ride.distance_km.toFixed(1)} km</div>
-      </div>
-    `;
-    tripsList.prepend(trip);
-  }
-
+  // Incoming ride requests via WebSocket (driver_ws.js will call this)
   window.SwiftRideDriver = {
-    addIncomingRequest,
+    addIncomingRequest(ride) {
+      if (!requestsList) return;
+
+      const li = document.createElement("li");
+      li.className = "ride-item";
+      li.innerHTML = `
+        <div>
+          <div>${ride.pickup} → ${ride.dropoff}</div>
+          <div class="muted">${(ride.distance_km || 0).toFixed(1)} km • ${(ride.duration_min || 0)} min</div>
+          <div class="muted">Fare: ${CURRENCY}${(ride.fare || 0).toFixed(2)}</div>
+        </div>
+        <div class="driver-request-actions">
+          <button class="btn small primary">Accept</button>
+          <button class="btn small ghost">Decline</button>
+        </div>
+      `;
+
+      const [btnAccept, btnDecline] = li.querySelectorAll("button");
+
+      btnAccept.addEventListener("click", async () => {
+        try {
+          const res = await fetch(`${baseUrl}/rides/${ride.id}/accept`, {
+            method: "POST",
+            headers: { Authorization: "Bearer " + user.token },
+          });
+          if (!res.ok) {
+            const err = await res.json();
+            alert("Could not accept ride: " + (err.detail || "Unknown error"));
+            return;
+          }
+          li.querySelector(".driver-request-actions").innerHTML =
+            `<span class="muted">Accepted. Navigate to pickup…</span>`;
+          statusBadge.textContent = "On trip";
+        } catch (err) {
+          console.error(err);
+          alert("Connection error while accepting ride");
+        }
+      });
+
+      btnDecline.addEventListener("click", () => {
+        li.remove();
+      });
+
+      requestsList.prepend(li);
+    },
   };
 
-  statRating.textContent = (4.6 + Math.random() * 0.4).toFixed(1);
+  // Initial loads
+  loadDriverOverview();
+  loadTripHistory();
 });

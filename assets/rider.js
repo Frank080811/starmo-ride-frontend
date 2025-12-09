@@ -1,3 +1,4 @@
+// frontend/assets/js/rider.js
 document.addEventListener("DOMContentLoaded", () => {
   const userRaw = localStorage.getItem("swift_user");
   if (!userRaw) {
@@ -6,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const user = JSON.parse(userRaw);
-  const CURRENCY = "GH₵"; // 🇬🇭 Ghana Cedis
+  const CURRENCY = "GH₵"; // Ghana Cedis
 
   const nameEl = document.getElementById("rider-name");
   if (nameEl) nameEl.textContent = user.email.split("@")[0];
@@ -48,29 +49,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const rideStatusLabel = document.getElementById("ride-status-label");
   const rideDriverName = document.getElementById("ride-driver-name");
 
-  // Ghana pricing model
-  const BASE_FARE = 20.0;        // GH₵ base
-  const RATE_PER_KM = 5.0;       // GH₵ / km
-  const RATE_PER_MIN = 0.50;     // GH₵ / minute
+  // Ghana pricing model (tune as you like)
+  const BASE_FARE = 20.0;    // GH₵ base
+  const RATE_PER_KM = 5.0;   // GH₵ / km
+  const RATE_PER_MIN = 0.5;  // GH₵ / minute
 
   const baseUrl = "https://sharmo-riding-app.onrender.com";
 
-  // --- GHANA GPS AUTOFILL ---
+  // --- Ghana GPS autofill for pickup field ---
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         const pickupInput = document.getElementById("pickup");
-        if (pickupInput) pickupInput.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        if (pickupInput) {
+          pickupInput.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        }
       },
-      () => console.log("GPS permission denied")
+      () => console.log("GPS permission denied; using manual pickup.")
     );
   }
 
   function fakeDistanceAndDuration() {
-    const distance = (Math.random() * 8 + 1).toFixed(1);
-    const duration = Math.round(distance * (4 + Math.random() * 3));
+    const distance = (Math.random() * 8 + 1).toFixed(1); // 1–9 km
+    const duration = Math.round(distance * (4 + Math.random() * 3)); // 4–7 min per km
     return { distance, duration };
   }
 
@@ -182,6 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.error(err);
+      alert("Connection error while creating ride");
     }
   });
 

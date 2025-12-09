@@ -49,59 +49,70 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  authForm?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const email = document.getElementById("auth-email").value.trim();
-    const password = document.getElementById("auth-password").value.trim();
-    if (!email || !password) return;
+authForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value.trim();
+  if (!email || !password) return;
 
-    const baseURL = "https://sharmo-riding-app.onrender.com";
+  const baseUrl = "https://sharmo-riding-app.onrender.com";
 
-
-    try {
-      if (!isLogin) {
-        await fetch(baseUrl + "/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            full_name: email.split("@")[0],
-            password,
-            role: selectedRole
-          }),
-        });
-      }
-
-      const formData = new FormData();
-      formData.append("username", email);
-      formData.append("password", password);
-
-      const tokenRes = await fetch(baseUrl + "/auth/token", {
+  try {
+    // Signup
+    if (!isLogin) {
+      await fetch(baseUrl + "/auth/signup", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          full_name: email.split("@")[0],
+          password,
+          role: selectedRole
+        }),
       });
-
-      if (!tokenRes.ok) {
-        alert("Login failed");
-        return;
-      }
-
-      const tokenData = await tokenRes.json();
-      const user = { email, role: selectedRole, token: tokenData.access_token };
-      localStorage.setItem("swift_user", JSON.stringify(user));
-
-      if (selectedRole === "rider") {
-        window.location.href = "rider_dashboard.html";
-      } else if (selectedRole === "driver") {
-        window.location.href = "driver_dashboard.html";
-      } else {
-        window.location.href = "admin_dashboard.html";
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Connection error to backend");
     }
-  });
+
+    // Login (token)
+    const formData = new FormData();
+    formData.append("username", email);
+    formData.append("password", password);
+
+    const tokenRes = await fetch(baseUrl + "/auth/token", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!tokenRes.ok) {
+      alert("Login failed");
+      return;
+    }
+
+    const tokenData = await tokenRes.json();
+
+    // ✔ FIX: use backend role + email
+    const user = {
+      email: tokenData.email,
+      role: tokenData.role,
+      token: tokenData.access_token
+    };
+
+    localStorage.setItem("swift_user", JSON.stringify(user));
+
+    // Redirect based on real backend role
+    if (user.role === "rider") {
+      window.location.href = "rider_dashboard.html";
+    } else if (user.role === "driver") {
+      window.location.href = "driver_dashboard.html";
+    } else {
+      window.location.href = "admin_dashboard.html";
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Connection error to backend");
+  }
+});
+
 
   btnGetRide?.addEventListener("click", () => {
     selectedRole = "rider";
