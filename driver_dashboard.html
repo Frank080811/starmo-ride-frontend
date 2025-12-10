@@ -2,9 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SwiftRide – Driver Dashboard</title>
+  <title>Shamor-Rides – Driver Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="assets/styles.css" />
+
+  <!-- Leaflet CSS + JS for the live map -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- App scripts -->
   <script defer src="assets/driver.js"></script>
   <script defer src="assets/driver_ws.js"></script>
 </head>
@@ -19,7 +28,9 @@
         <div class="avatar driver">D</div>
         <div>
           <div class="user-name" id="driver-name">Driver</div>
-          <div class="user-meta">Earnings today: <span id="driver-earnings">$0.00</span></div>
+          <div class="user-meta">
+            Earnings today: <span id="driver-earnings">GH₵0.00</span>
+          </div>
         </div>
       </div>
       <nav class="sidebar-nav">
@@ -41,21 +52,27 @@
 
       <section class="dashboard-content">
         <div class="map-panel">
+          <!-- Leaflet will take over this div -->
           <div id="driver-map" class="map-placeholder">
-            <span class="map-hint">Driver map placeholder – integrate Mapbox/Leaflet here.</span>
+            <span class="map-hint">
+              Loading live driver map…
+            </span>
           </div>
         </div>
 
+        <!-- Requests -->
         <div class="side-panel" id="panel-requests">
           <h2>Incoming requests</h2>
           <ul class="ride-list" id="request-list"></ul>
         </div>
 
+        <!-- Trips -->
         <div class="side-panel hidden" id="panel-trips">
           <h2>Today’s trips</h2>
           <ul class="ride-list" id="driver-trips-list"></ul>
         </div>
 
+        <!-- Stats -->
         <div class="side-panel hidden" id="panel-stats">
           <h2>Performance</h2>
           <div class="stat-grid">
@@ -74,11 +91,14 @@
           </div>
         </div>
 
+        <!-- Documents -->
         <div class="side-panel hidden" id="panel-docs">
           <h2>Documents & Verification</h2>
           <p>Upload your driver license, car papers, and ID.</p>
           <input type="file" id="driver-doc" />
-          <button class="btn primary full-width" id="btn-upload-doc">Upload document</button>
+          <button class="btn primary full-width" id="btn-upload-doc">
+            Upload document
+          </button>
           <p id="upload-status" class="muted small-text"></p>
         </div>
       </section>
