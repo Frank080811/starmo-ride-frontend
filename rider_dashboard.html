@@ -7,38 +7,36 @@
 
   <link rel="stylesheet" href="assets/styles.css" />
 
-  <!-- Leaflet CSS & JS -->
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <!-- Rider Scripts -->
-  <script defer src="assets/js/rider.js"></script>
-  <script defer src="assets/js/rider_ws.js"></script>
 
   <style>
-    /* Ensure map container works */
     #map {
       width: 100%;
       height: 100%;
+      min-height: 480px;
       border-radius: 12px;
     }
     .map-panel {
       height: 500px;
+      min-height: 500px;
       background: #0d1224;
       border-radius: 12px;
-      padding: 0;
       overflow: hidden;
+      margin-bottom: 20px;
     }
   </style>
-
 </head>
+
 <body class="dashboard-body">
   <div class="dashboard-layout">
+
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo-circle small">SR</div>
         <span class="logo-text">Shamor-Rides</span>
       </div>
+
       <div class="user-card">
         <div class="avatar">R</div>
         <div>
@@ -46,11 +44,13 @@
           <div class="user-meta">Rating: <span id="rider-rating">4.8 ★</span></div>
         </div>
       </div>
+
       <nav class="sidebar-nav">
         <button class="sidebar-link active" data-view="book">Book Ride</button>
         <button class="sidebar-link" data-view="history">Ride History</button>
         <button class="sidebar-link" data-view="payments">Wallet & Payments</button>
       </nav>
+
       <button class="btn ghost full-width" id="btn-logout">Log out</button>
     </aside>
 
@@ -65,13 +65,12 @@
 
       <section class="dashboard-content">
 
-        <!-- MAP FIXED -->
-      <div class="map-panel">
-          <div id="map" style="height:100%; width:100%; border-radius:12px;"></div>
-      </div>
+        <!-- MAP -->
+        <div class="map-panel">
+          <div id="map"></div>
+        </div>
 
-
-        <!-- BOOK RIDE PANEL -->
+        <!-- Booking panel -->
         <div class="side-panel" id="panel-book">
           <h2>Request a new ride</h2>
 
@@ -91,6 +90,7 @@
                   <option value="xl">XL</option>
                 </select>
               </div>
+
               <div>
                 <label>Payment</label>
                 <select id="payment-method">
@@ -102,44 +102,33 @@
             </div>
 
             <label>Promo Code (optional)</label>
-            <input type="text" id="promo-code" placeholder="e.g. WELCOME10" />
+            <input type="text" id="promo-code" placeholder="WELCOME10" />
 
             <button type="submit" class="btn primary full-width">Find a driver</button>
           </form>
-
-          <div class="estimate-card hidden" id="estimate-card">
-            <h3>Estimated fare</h3>
-            <p>
-              Distance: <span id="est-distance">–</span><br />
-              Duration: <span id="est-duration">–</span><br />
-              Surge: <span id="est-surge">1.0x</span><br />
-              Fare: <strong id="est-fare">–</strong>
-            </p>
-          </div>
-
-          <div class="current-ride hidden" id="current-ride">
-            <h3>Current ride</h3>
-            <p>Status: <span id="ride-status-label">Searching</span></p>
-            <p>Driver: <span id="ride-driver-name">–</span></p>
-          </div>
         </div>
 
-        <!-- HISTORY PANEL -->
         <div class="side-panel hidden" id="panel-history">
           <h2>Recent rides</h2>
-          <ul class="ride-list" id="ride-history-list"></ul>
+          <ul id="ride-history-list" class="ride-list"></ul>
         </div>
 
-        <!-- WALLET PANEL -->
         <div class="side-panel hidden" id="panel-payments">
           <h2>Wallet & Payments</h2>
           <p>Wallet balance: <strong id="wallet-balance">GH₵0.00</strong></p>
           <button class="btn ghost full-width" id="btn-add-funds">Add demo funds</button>
-          <p class="muted small-text">In production, integrate a payment gateway.</p>
         </div>
 
       </section>
     </main>
   </div>
+
+  <!-- Load Leaflet JS BEFORE rider.js -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- Your custom JS -->
+  <script src="assets/js/rider.js" defer></script>
+  <script src="assets/js/rider_ws.js" defer></script>
+
 </body>
 </html>

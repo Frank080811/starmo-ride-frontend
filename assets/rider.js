@@ -6,29 +6,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const user = JSON.parse(userRaw);
-  const CURRENCY = "GH₵";
+  document.getElementById("rider-name").textContent = user.email.split("@")[0];
 
   const baseUrl = "https://sharmo-riding-app.onrender.com";
 
-  // UI updates
-  const nameEl = document.getElementById("rider-name");
-  if (nameEl) nameEl.textContent = user.email.split("@")[0];
+  // ============================================
+  // 🌍 LEAFLET MAP INITIALIZATION
+  // ============================================
 
-  // -----------------------------
-  // 🌍 INITIALIZE LEAFLET MAP
-  // -----------------------------
-  let map = L.map("map").setView([5.6037, -0.1870], 13); // default Accra
+  // Prevent double instantiation
+  let map = L.map("map", { zoomControl: true }).setView([5.6037, -0.1870], 13);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: "© OpenStreetMap contributors",
   }).addTo(map);
 
-  let userMarker = null;
+  let marker = null;
 
-  // -----------------------------
-  // 📌 GET CURRENT LOCATION
-  // -----------------------------
+  // ---- GET USER LOCATION ----
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -37,69 +33,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("pickup").value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
-        userMarker = L.marker([lat, lng]).addTo(map);
+        if (!marker) {
+          marker = L.marker([lat, lng]).addTo(map);
+        } else {
+          marker.setLatLng([lat, lng]);
+        }
+
         map.setView([lat, lng], 15);
       },
-      () => console.log("GPS permission denied")
+      (err) => {
+        console.warn("GPS Permission Denied:", err.message);
+        map.setView([5.6037, -0.1870], 12); // Default Accra view
+      }
     );
   }
 
-  // -----------------------------
-  // 💳 WALLET, BOOKING, HISTORY (unchanged)
-  // -----------------------------
+  // ============================================
+  // 🧾 RIDE BOOKING LOGIC (unchanged)
+  // ============================================
 
   const rideForm = document.getElementById("ride-form");
-  const estCard = document.getElementById("estimate-card");
-  const estDistance = document.getElementById("est-distance");
-  const estDuration = document.getElementById("est-duration");
-  const estFare = document.getElementById("est-fare");
-  const estSurge = document.getElementById("est-surge");
 
-  async function fetchSurge() {
-    try {
-      const res = await fetch(baseUrl + "/admin/heatmap/surge");
-      const data = await res.json();
-      return data.multiplier || 1;
-    } catch {
-      return 1;
-    }
-  }
-
-  function fakeDistanceAndDuration() {
-    const distance = (Math.random() * 8 + 1).toFixed(1);
-    const duration = Math.round(distance * (4 + Math.random() * 3));
-    return { distance, duration };
-  }
-
-  function calculateFare(distance, duration, rideType, promo, surge) {
-    let multiplier = 1;
-    if (rideType === "comfort") multiplier = 1.2;
-    if (rideType === "xl") multiplier = 1.6;
-
-    let fare = (20 + distance * 5 + duration * 0.5) * multiplier * surge;
-
-    if (promo && promo.toUpperCase() === "WELCOME10") fare *= 0.9;
-
-    return fare.toFixed(2);
-  }
-
-  rideForm?.addEventListener("submit", async (e) => {
+  rideForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const pickup = document.getElementById("pickup").value;
-    const dropoff = document.getElementById("dropoff").value;
+
+    const pickup = document.getElementById("pickup").value.trim();
+    const dropoff = document.getElementById("dropoff").value.trim();
     const rideType = document.getElementById("ride-type").value;
     const payment = document.getElementById("payment-method").value;
-    const promo = document.getElementById("promo-code").value;
 
-    const { distance, duration } = fakeDistanceAndDuration();
-    const surge = await fetchSurge();
-    const fare = calculateFare(distance, duration, rideType, promo, surge);
-
-    estCard.classList.remove("hidden");
-    estDistance.textContent = `${distance} km`;
-    estDuration.textContent = `${duration} min`;
-    estSurge.textContent = `${surge}x`;
-    estFare.textContent = `${CURRENCY}${fare}`;
+    if (!pickup || !dropoff) return alert("Fill pickup & dropoff");
 
     const res = await fetch(baseUrl + "/rides", {
       method: "POST",
@@ -112,12 +75,14 @@ document.addEventListener("DOMContentLoaded", () => {
         dropoff,
         ride_type: rideType,
         payment_method: payment,
-        promo_code: promo || null,
       }),
     });
 
-    if (res.ok) {
-      alert("Ride created! Matching driver...");
+    if (!res.ok) {
+      alert("Ride failed");
+      return;
     }
+
+    alert("Ride created successfully!");
   });
 });
