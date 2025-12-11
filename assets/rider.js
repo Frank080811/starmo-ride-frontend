@@ -1,11 +1,14 @@
 // assets/js/rider.js
-
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Rider JS Loaded");
 
-    // LOGIN VALIDATION
+    console.log("Rider JS Loaded…");
+
+    // ----------------------------------------------------
+    // USER LOGIN CHECK
+    // ----------------------------------------------------
     const userRaw = localStorage.getItem("swift_user");
     if (!userRaw) {
+        console.warn("No user found in localStorage");
         window.location.href = "index.html";
         return;
     }
@@ -16,57 +19,73 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const baseUrl = "https://sharmo-riding-app.onrender.com";
 
-    // LOGOUT BUTTON
-    const logoutBtn = document.getElementById("btn-logout");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", () => {
-            localStorage.removeItem("swift_user");
-            window.location.href = "index.html";
-        });
-    }
+    // ----------------------------------------------------
+    // LOGOUT
+    // ----------------------------------------------------
+    document.getElementById("btn-logout").addEventListener("click", () => {
+        localStorage.removeItem("swift_user");
+        window.location.href = "index.html";
+    });
 
-    // MAP INITIALIZATION
-    let map = null;
-    let marker = null;
+    // ----------------------------------------------------
+    // MAP INITIALIZATION (MOST IMPORTANT FIX)
+    // ----------------------------------------------------
+    let map;
+    let marker;
 
     function initMap() {
-        if (map !== null) return;
+        console.log("Initializing Leaflet map…");
 
-        map = L.map("map", { zoomControl: true });
+        const mapDiv = document.getElementById("map");
+        if (!mapDiv) {
+            console.error("Map container NOT FOUND!");
+            return;
+        }
 
+        // Ensure parent layout is fully rendered
         setTimeout(() => {
-            map.invalidateSize();
-            map.setView([5.6037, -0.1870], 13); // Default Ghana center
-        }, 300);
+            map = L.map("map", {
+                zoomControl: true
+            });
 
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-            maxZoom: 19,
-            attribution: "© OpenStreetMap contributors"
-        }).addTo(map);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                maxZoom: 19,
+                attribution: "© OpenStreetMap"
+            }).addTo(map);
+
+            // Force Leaflet to recalc size
+            setTimeout(() => {
+                map.invalidateSize(true);
+                map.setView([5.6037, -0.1870], 13);
+            }, 300);
+
+            console.log("Map initialized successfully.");
+
+        }, 300);
     }
 
     initMap();
 
-    // LOCATION REQUEST
+    // ----------------------------------------------------
+    // GEOLOCATION FIX
+    // ----------------------------------------------------
     function requestLocation() {
-        console.log("Requesting GPS...");
+        console.log("Requesting browser GPS…");
 
         if (!navigator.geolocation) {
-            alert("Your browser does not support GPS.");
+            alert("GPS not supported by your browser.");
             return;
         }
 
         navigator.geolocation.getCurrentPosition(
             (pos) => {
-                console.log("GPS Access Granted");
+                console.log("GPS SUCCESS:", pos.coords);
 
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
 
                 const pickupField = document.getElementById("pickup");
-                if (pickupField) {
-                    pickupField.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-                }
+                pickupField.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
                 if (!marker) {
                     marker = L.marker([lat, lng]).addTo(map);
@@ -77,22 +96,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 map.setView([lat, lng], 15);
             },
             (err) => {
-                console.warn("GPS DENIED:", err.message);
-                alert("Please enable location services.");
-                map.setView([5.6037, -0.1870], 13);
+                console.error("GPS ERROR:", err);
+                alert("Location permission denied. Enable it and retry.");
             },
-            { enableHighAccuracy: true, timeout: 8000 }
+            { enableHighAccuracy: true, timeout: 10000 }
         );
     }
 
-    // Request location after UI loads
-    setTimeout(requestLocation, 500);
+    // Try to load user location after UI loads
+    setTimeout(requestLocation, 800);
 
-    // Retry location
-    const retryBtn = document.getElementById("enable-location");
-    if (retryBtn) retryBtn.addEventListener("click", requestLocation);
+    // Enable location button
+    document.getElementById("enable-location").addEventListener("click", requestLocation);
 
-    // RIDE SUBMIT HANDLER
+    // ----------------------------------------------------
+    // RIDE SUBMISSION FIX
+    // ----------------------------------------------------
     const rideForm = document.getElementById("ride-form");
 
     rideForm.addEventListener("submit", async (e) => {
@@ -104,9 +123,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const payment = document.getElementById("payment-method").value;
 
         if (!pickup || !dropoff) {
-            alert("Please fill both pickup and dropoff fields.");
+            alert("Pickup and dropoff required.");
             return;
         }
+
+        console.log("Submitting ride…");
 
         const res = await fetch(`${baseUrl}/rides`, {
             method: "POST",
@@ -122,12 +143,17 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         });
 
+        const data = await res.json();
+
         if (!res.ok) {
-            const err = await res.json();
-            alert("Ride failed: " + (err.detail || "Unknown error"));
+            console.error("Ride creation failed:", data);
+            alert("Request failed: " + (data.detail || "Unknown error"));
             return;
         }
 
-        alert("Ride created. Waiting for driver...");
+        console.log("Ride response:", data);
+
+        alert("Your ride request has been submitted.");
     });
+
 });
