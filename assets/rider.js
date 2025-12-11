@@ -1,82 +1,89 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("Rider JS loaded.");
 
+    console.log("Rider JS Loaded.");
+
+    // -------------------------------
+    // LOGIN VALIDATION
+    // -------------------------------
     const userRaw = localStorage.getItem("swift_user");
-    if (!userRaw) return (window.location.href = "index.html");
+    if (!userRaw) {
+        window.location.href = "index.html";
+        return;
+    }
 
     const user = JSON.parse(userRaw);
     document.getElementById("rider-name").textContent = user.email.split("@")[0];
 
     const baseUrl = "https://sharmo-riding-app.onrender.com";
 
-    // ---------------------------------------------------------
+    // -------------------------------
     // LOGOUT FIX
-    // ---------------------------------------------------------
+    // -------------------------------
     document.getElementById("btn-logout").addEventListener("click", () => {
         localStorage.removeItem("swift_user");
         window.location.href = "index.html";
     });
 
-    // ---------------------------------------------------------
-    // LEAFLET MAP
-    // ---------------------------------------------------------
-    let map = L.map("map", { zoomControl: true });
+    // -------------------------------
+    // LEAFLET MAP — FIXED
+    // -------------------------------
+    const map = L.map("map", { zoomControl: true });
 
-    // Ensures map renders properly
+    // Wait for the UI to load → then fix rendering
     setTimeout(() => {
-        map.invalidateSize();
+        map.invalidateSize();              // CRITICAL FIX
         map.setView([5.6037, -0.1870], 13);
-    }, 200);
+    }, 300);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "© OpenStreetMap contributors"
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 19
     }).addTo(map);
 
     let marker = null;
 
-    // ---------------------------------------------------------
-    // AUTO GET LOCATION
-    // ---------------------------------------------------------
-    function loadLocation() {
+    // -------------------------------
+    // GEOLOCATION (fixed)
+    // -------------------------------
+    function requestLocation() {
         if (!navigator.geolocation) {
-            console.warn("Geolocation unavailable.");
+            alert("Your browser does not support GPS.");
             return;
         }
 
         navigator.geolocation.getCurrentPosition(
             (pos) => {
-                console.log("GPS Access Granted");
+                console.log("GPS granted.");
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
 
-                const { latitude, longitude } = pos.coords;
-
-                document.getElementById("pickup").value =
-                    `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                document.getElementById("pickup").value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
                 if (!marker) {
-                    marker = L.marker([latitude, longitude]).addTo(map);
+                    marker = L.marker([lat, lng]).addTo(map);
                 } else {
-                    marker.setLatLng([latitude, longitude]);
+                    marker.setLatLng([lat, lng]);
                 }
 
-                map.setView([latitude, longitude], 15);
+                map.setView([lat, lng], 15);
             },
             (err) => {
-                console.warn("GPS Error:", err.message);
-                alert("Please allow location access for map accuracy.");
+                console.warn("GPS denied:", err.message);
+                alert("Location access denied. Please enable location.");
             }
         );
     }
 
-    // Call on load
-    loadLocation();
+    // Initial attempt
+    requestLocation();
 
     // Retry button
-    document.getElementById("enable-location").addEventListener("click", loadLocation);
+    const retryBtn = document.getElementById("enable-location");
+    if (retryBtn) retryBtn.addEventListener("click", requestLocation);
 
-    // ---------------------------------------------------------
-    // SIMPLE RIDE CREATION
-    // ---------------------------------------------------------
+    // -------------------------------
+    // RIDE SUBMISSION
+    // -------------------------------
     const rideForm = document.getElementById("ride-form");
 
     rideForm.addEventListener("submit", async (e) => {
@@ -87,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const rideType = document.getElementById("ride-type").value;
         const payment = document.getElementById("payment-method").value;
 
-        const res = await fetch(baseUrl + "/rides", {
+        const res = await fetch(`${baseUrl}/rides`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -101,8 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
             })
         });
 
-        if (!res.ok) return alert("Ride failed");
+        if (!res.ok) return alert("Ride failed. Try again.");
 
         alert("Ride created!");
     });
+
 });
